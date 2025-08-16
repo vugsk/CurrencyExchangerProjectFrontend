@@ -3,13 +3,13 @@
     <div>© 2015-2025 «Конверт»</div>
     <div class="site-change">
       <a href="https://www.bestchange.net/">
-        <img ngSrc="assets/home/bestchange.svg" alt="best change" height="31" width="81">
+        <img ngSrc="/home/bestchange.svg" alt="best change" height="31" width="81">
       </a>
     </div>
   </div>
   <div class="about-site">
     @for (aboutSite of AboutSites; track aboutSite.name) {
-      <a [routerLink]="aboutSite.url" style="color: #3498db;text-decoration: none;">{{ aboutSite.name }} </a>
+      <a [routerLink]="aboutSite.url" (click)="setDocTitle(aboutSite.name)" style="color: #3498db;text-decoration: none;">{{ aboutSite.name }} </a>
     }
   </div>
 </footer>

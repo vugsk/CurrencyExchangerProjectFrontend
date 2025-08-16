@@ -2,11 +2,12 @@
   "name": "currency-exchanger-project-frontend",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+      "ng": "ng",
+      "start": "ng serve",
+      "start-release": "ng serve --configuration production",
+      "build": "ng build --aot --optimization",
+      "watch": "ng build --watch --configuration development",
+      "test": "ng test"
   },
   "prettier": {
     "printWidth": 100,

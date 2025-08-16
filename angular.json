@@ -13,8 +13,8 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
-            "polyfills": [
+              "browser": "src/main.ts",
+              "polyfills": [
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
@@ -22,8 +22,7 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              "src/assets"
+              }
             ],
             "styles": [
               "src/styles.css"
@@ -33,9 +32,9 @@
             "production": {
               "budgets": [
                 {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                    "type": "initial",
+                    "maximumWarning": "500kB",
+                    "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -43,7 +42,9 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+                "outputHashing": "all",
+                "optimization": true,
+                "aot": true
             },
             "development": {
               "optimization": false,
@@ -57,7 +58,7 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "CurrencyExchangerProjectFrontend:build:production"
+                "buildTarget": "CurrencyExchangerProjectFrontend:build:production"
             },
             "development": {
               "buildTarget": "CurrencyExchangerProjectFrontend:build:development"
@@ -88,6 +89,91 @@
           }
         }
       }
+    },
+      "test-app": {
+          "projectType": "application",
+          "schematics": {},
+          "root": "projects/test-app",
+          "sourceRoot": "projects/test-app/src",
+          "prefix": "app",
+          "architect": {
+              "build": {
+                  "builder": "@angular/build:application",
+                  "options": {
+                      "browser": "projects/test-app/src/main.ts",
+                      "polyfills": [
+                          "zone.js"
+                      ],
+                      "tsConfig": "projects/test-app/tsconfig.app.json",
+                      "assets": [
+                          {
+                              "glob": "**/*",
+                              "input": "projects/test-app/public"
+                          }
+                      ],
+                      "styles": [
+                          "projects/test-app/src/styles.css"
+                      ]
+                  },
+                  "configurations": {
+                      "production": {
+                          "budgets": [
+                              {
+                                  "type": "initial",
+                                  "maximumWarning": "500kB",
+                                  "maximumError": "1MB"
+                              },
+                              {
+                                  "type": "anyComponentStyle",
+                                  "maximumWarning": "4kB",
+                                  "maximumError": "8kB"
+                              }
+                          ],
+                          "outputHashing": "all"
+                      },
+                      "development": {
+                          "optimization": false,
+                          "extractLicenses": false,
+                          "sourceMap": true
+                      }
+                  },
+                  "defaultConfiguration": "production"
+              },
+              "serve": {
+                  "builder": "@angular/build:dev-server",
+                  "configurations": {
+                      "production": {
+                          "buildTarget": "test-app:build:production"
+                      },
+                      "development": {
+                          "buildTarget": "test-app:build:development"
+                      }
+                  },
+                  "defaultConfiguration": "development"
+              },
+              "extract-i18n": {
+                  "builder": "@angular/build:extract-i18n"
+              },
+              "test": {
+                  "builder": "@angular/build:karma",
+                  "options": {
+                      "polyfills": [
+                          "zone.js",
+                          "zone.js/testing"
+                      ],
+                      "tsConfig": "projects/test-app/tsconfig.spec.json",
+                      "assets": [
+                          {
+                              "glob": "**/*",
+                              "input": "projects/test-app/public"
+                          }
+                      ],
+                      "styles": [
+                          "projects/test-app/src/styles.css"
+                      ]
+                  }
+              }
+          }
     }
   }
 }

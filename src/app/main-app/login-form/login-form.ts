@@ -1,5 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {Router} from '@angular/router';
+import {Title} from '@angular/platform-browser';
 
 enum PageType {
     Register = 'register',
@@ -12,6 +13,8 @@ enum PageType {
     templateUrl: './login-form.html',
     styleUrl: './login-form.css'
 })
+
+
 
 export class LoginForm {
     protected readonly PageType: typeof PageType = PageType;
@@ -28,11 +31,15 @@ export class LoginForm {
 
         switch (page) {
             case PageType.Register:
-                this.router.navigate(['/registration']).then(funcCheckCorrection);
+                this.router.navigate(['change/registration']).then(funcCheckCorrection);
                 break;
             case PageType.Profile:
-                this.router.navigate(['/profile', id]).then(funcCheckCorrection);
+                this.router.navigate(['change/profile', id]).then(funcCheckCorrection);
                 break;
         }
+    }
+
+    constructor(private titleService: Title) {
+        this.titleService.setTitle("Login");
     }
 }

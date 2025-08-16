@@ -1,0 +1,30 @@
+<main class="registration-page">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 id="header-registration">Регистрация</h2>
+    </div>
+    <form id="form-registration">
+        @for (labelInput of labelsInputs; track labelInput.id) {
+            <div style="position: relative;">
+                <input [id]="labelInput.id" class="input-reg" [type]="labelInput.type_i" [placeholder]="labelInput.placeholder">
+                @if (labelInput.type_i === "password") {
+                    <div class="show-password"></div>
+                }
+            </div>
+        }
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="terms">
+            <label for="terms" style="font-size: 14px; color: #666;">
+                С <a href="#" style="color: #d3192a; text-decoration: none;">правилами сервиса</a> ознакомлен и согласен.
+            </label>
+        </div>
+        <button id="registration-button" type="submit" (click)="registrationProfileUser()">
+            Зарегистрироваться
+        </button>
+    </form>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="#" style="color: #d3192a; text-decoration: none; font-size: 14px;">Забыли пароль?</a>
+    </div>
+    <div style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
+        Уже зарегистрированы? — <a href="#" style="color: #d3192a; text-decoration: none;">Войти</a>
+    </div>
+</main>

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Feed, ColumnCurrency, ColumnBank } from './interfaces';
+import {Title} from '@angular/platform-browser';
 
 interface LabelInputDataUserForChang {
   label: string;
@@ -15,7 +16,7 @@ interface LabelInputDataUserForChang {
   styleUrl: './home.css'
 })
 export class Home {
-    public arrayLabelsInputs: LabelInputDataUserForChang[] = [
+    protected arrayLabelsInputs: LabelInputDataUserForChang[] = [
     {
       label: "Ваш адрес электронной почты",
       placeholder: "Введите адрес электронной почты для уведомлений",
@@ -47,7 +48,7 @@ export class Home {
       style_input: ""
     }
     ]
-    public feeds: Feed[] = [
+    protected feeds: Feed[] = [
     {
       name: "Отправляете",
       array: [
@@ -95,10 +96,16 @@ export class Home {
       ]
     },
   ]
-    public isColumnBank(item: ColumnBank | ColumnCurrency): item is ColumnBank {
+
+    constructor(private titleService: Title) {
+        this.titleService.setTitle("Home");
+    }
+
+    protected isColumnBank(item: ColumnBank | ColumnCurrency): item is ColumnBank {
         return 'name' in item
     }
-    public isColumnCurrency(item: ColumnBank | ColumnCurrency): item is ColumnCurrency {
+
+    protected isColumnCurrency(item: ColumnBank | ColumnCurrency): item is ColumnCurrency {
         return 'price' in item
     }
 }

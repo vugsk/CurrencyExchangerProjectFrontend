@@ -1,0 +1,29 @@
+<main class="user-profile-page">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="font-size: 20px; color: #888; font-weight: normal;">
+            Основные данные
+        </h2>
+    </div>
+    <form style="display: flex; flex-direction: column; gap: 20px;">
+        @for (label of labelsTexts; track label.id) {
+            <div class="label-profile">
+                <label class="label-text">{{ label.name }}</label>
+                <input [id]="label.id" class="input-profile" type="text" placeholder="">
+            </div>
+        }
+        <div style="text-align: center; margin: 20px 0;">
+            <h3 style="font-size: 18px; color: #888; font-weight: normal;">
+                Изменить пароль
+            </h3>
+        </div>
+        @for (label of labelsPasswords; track label.id) {
+            <div class="label-profile">
+                <label class="label-text">{{ label.name }}</label>
+                <input [id]="label.id" class="input-profile" type="password" placeholder="">
+            </div>
+        }
+        <button id="button-save" type="submit" (click)="buttonSaveDataProfile()">
+            Сохранить
+        </button>
+    </form>
+</main>
