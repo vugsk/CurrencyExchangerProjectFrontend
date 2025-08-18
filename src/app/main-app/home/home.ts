@@ -108,4 +108,65 @@ export class Home {
     protected isColumnCurrency(item: ColumnBank | ColumnCurrency): item is ColumnCurrency {
         return 'price' in item
     }
+
+    protected createRequest(checkbox_tag: string, button_tag: string): void {
+      if (document.querySelector(checkbox_tag)?.getElementsByTagName("input")[0]?.checked) {
+        console.log("ok");
+      }
+    }
+
+    private bank: ColumnBank | undefined;
+    private currency: ColumnCurrency | undefined;
+    protected activeFunctionColumnFeed(column: ColumnBank | ColumnCurrency, class_tag: string): void {
+      document.querySelectorAll(class_tag).forEach((element: Element): void => {
+        const text: string = this.isColumnBank(column)? (column.name + " " + column.currency)
+          : (column.cryptocurrency + " " + column.price_currency);
+
+        if (element.classList.contains("active"))
+          element.classList.remove("active");
+        if (element.children[0].textContent === text && !element.classList.contains('active')) {
+          element.classList.add("active");
+
+          if (this.isColumnBank(column))
+            this.bank = column;
+          else if (this.isColumnCurrency(column))
+            this.currency = column;
+        }
+      });
+    }
+
+    // refactor code
+    // TODO: вынести как отдельный модуль либо класс с функциями получение и отправки данных на сервера
+    private async Te(url: string, params?: any): Promise<any> {
+      const _url = new URL(url);
+      _url.search = new URLSearchParams(params).toString();
+
+      const options = {
+        method: 'GET',
+        headers:  {"Content-type":"application/json; charset=UTF-8"},
+      };
+
+      return await fetch(_url, options)
+        .then((response: Response): Promise<any> => response.json())
+        .catch((err: any): void => console.error(err));
+    }
+
+    // refactor code
+    // TODO: сделать чтобы после обработки выдовал массив объектов курса крипты с названием полным и коротким
+    protected readonly curseCoin: Promise<object> = (async ():Promise<object> => {
+      return await this.Te("https://min-api.cryptocompare.com/data/all/coinlist")
+        .then(async (json: any) => {
+          let jk: number = 0;
+          let arr: string[] = []
+          for (const key in json.Data) {
+            if (jk < 10) {
+              arr.push(json.Data[key].Name);
+              jk++;
+            }
+          }
+          return await this.Te("https://min-api.cryptocompare.com/data/pricemulti", {
+            "fsyms": arr.join(',').toString(), "tsyms": "USDT,RUB"
+          });
+      });
+    })();
 }

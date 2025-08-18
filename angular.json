@@ -44,7 +44,8 @@
               ],
                 "outputHashing": "all",
                 "optimization": true,
-                "aot": true
+                "aot": true,
+                "namedChunks": true
             },
             "development": {
               "optimization": false,
@@ -56,6 +57,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "src/proxy.conf.json"
+          },
           "configurations": {
             "production": {
                 "buildTarget": "CurrencyExchangerProjectFrontend:build:production"

@@ -22,12 +22,12 @@
         <div class="currency-feed">
           @for (column of feed.array; track column) {
             @if (isColumnBank(column)) {
-              <div class="column-bank">
+              <div class="column-feed bank" (click)="activeFunctionColumnFeed(column, 'div.bank')">
                   <div style="font-size: 14px;">{{ column.name }} {{ column.currency }}</div>
               </div>
             }
             @else if (isColumnCurrency(column)) {
-              <div class="column-currency">
+              <div class="column-feed currency" (click)="activeFunctionColumnFeed(column, 'div.currency')">
                 <div style="font-size: 14px;">{{ column.cryptocurrency }} {{ column.price_currency }}</div>
                 <div class="price-cryptocurrency">{{ column.price }} {{ column.price_currency }}</div>
               </div>
@@ -54,5 +54,7 @@
     </label>
   </div>
 
-  <button id="create-request">Создать заявку</button>
+  <button id="create-request" (click)="createRequest('div.checkbox-agreement', 'button#create-request')">
+    Создать заявку
+  </button>
 </main>

@@ -4,9 +4,9 @@
   "scripts": {
       "ng": "ng",
       "start": "ng serve",
-      "start-release": "ng serve --configuration production",
-      "build": "ng build --aot --optimization",
-      "watch": "ng build --watch --configuration development",
+      "start-release": "ng serve --hmr=false --configuration production",
+      "build": "ng build",
+      "watch": "ng build --configuration production",
       "test": "ng test"
   },
   "prettier": {

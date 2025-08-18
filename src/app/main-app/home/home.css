@@ -22,7 +22,7 @@
 }
 
 .label-input-form-chang {
-  display: block;
+  display: flex;
   font-size: 14px;
   color: #666;
   margin-bottom: 8px;
@@ -61,7 +61,7 @@
   font-size: 14px;
   color: #666;
   margin-bottom: 8px;
-  display: block;
+  display: flex;
 }
 
 #input-sum-chang {
@@ -82,18 +82,11 @@
   margin-top: 10px;
 }
 
-.column-bank {
-  display: flex;
-  align-items: center;
-  padding: 12px 15px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-  transition: all 0.3s ease;
-  /*background-color: #2196f3;*/
-  /*color: white;*/
+.active {
+  background-color: #2196f3;
 }
 
-.column-currency {
+.column-feed {
   display: flex;
   align-items: center;
   padding: 12px 15px;
