@@ -45,14 +45,14 @@
 }
 
 .show-password {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    background-size: cover;
-    cursor: pointer;
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 33px;
+  height: 30px;
+  background-size: contain;
+  cursor: pointer;
 }
 
 #terms {
@@ -61,4 +61,16 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
+}
+
+.error-message {
+  color: #d3192a;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.input-error {
+  border-color: #d3192a !important;
+  box-shadow: 0 0 0 2px rgba(211, 25, 42, 0.1) !important;
 }

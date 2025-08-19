@@ -6,8 +6,11 @@
         @for (labelInput of labelsInputs; track labelInput.id) {
             <div style="position: relative;">
                 <input [formControlName]="labelInput.id" class="input-reg" [type]="labelInput.type_i" [placeholder]="labelInput.placeholder">
+                <div [id]="labelInput.id + '-error'" class="error-message"></div>
                 @if (labelInput.type_i === "password") {
-                    <div class="show-password"></div>
+                    <span class="show-password" (click)="showPassword(labelInput.id + '-error')">
+                      <img ngSrc="/home/eye.png" alt="show password" fill>
+                    </span>
                 }
             </div>
         }
@@ -17,6 +20,7 @@
                 С <a href="#" style="color: #d3192a; text-decoration: none;">правилами сервиса</a> ознакомлен и согласен.
             </label>
         </div>
+        <div id="header-error" class="error-message"></div>
         <button id="registration-button" type="submit">
             Зарегистрироваться
         </button>
@@ -25,6 +29,6 @@
         <a href="#" style="color: #d3192a; text-decoration: none; font-size: 14px;">Забыли пароль?</a>
     </div>
     <div style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;">
-        Уже зарегистрированы? — <a href="#" style="color: #d3192a; text-decoration: none;">Войти</a>
+        Уже зарегистрированы? — <a routerLink="/change/login" style="color: #d3192a; text-decoration: none;">Войти</a>
     </div>
 </main>
