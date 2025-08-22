@@ -34,6 +34,10 @@
     transition: all 0.3s ease;
 }
 
+.password-container {
+  position: relative;
+}
+
 .input-reg {
     width: 100%;
     padding: 12px 15px;
@@ -55,16 +59,8 @@
   cursor: pointer;
 }
 
-#terms {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 .error-message {
-  color: #d3192a;
+  color: red;
   font-size: 14px;
   margin-top: 5px;
   display: none;

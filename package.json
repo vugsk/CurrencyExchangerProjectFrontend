@@ -2,12 +2,12 @@
   "name": "currency-exchanger-project-frontend",
   "version": "0.0.0",
   "scripts": {
-      "ng": "ng",
-      "start": "ng serve",
-      "start-release": "ng serve --hmr=false --configuration production",
-      "build": "ng build",
-      "watch": "ng build --configuration production",
-      "test": "ng test"
+    "ng": "ng",
+    "start": "ng serve",
+    "start-release": "ng serve --hmr=false --configuration production",
+    "build": "ng build",
+    "watch": "ng build --configuration production",
+    "test": "ng test"
   },
   "prettier": {
     "printWidth": 100,
@@ -29,6 +29,7 @@
     "@angular/forms": "^20.1.0",
     "@angular/platform-browser": "^20.1.0",
     "@angular/router": "^20.1.0",
+    "ngx-cookie-service": "^20.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

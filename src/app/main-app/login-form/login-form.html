@@ -2,24 +2,29 @@
     <div style="text-align: center; margin-bottom: 40px;">
         <h2 style="font-size: 20px; color: #888; font-weight: normal;">Войти</h2>
     </div>
-    <form style="display: flex; flex-direction: column; gap: 20px;">
-        <div style="position: relative;">
-            <input id="input-login" type="text" placeholder="Логин | E-mail">
-        </div>
-        <div style="position: relative;">
-            <input id="input-password" type="password" placeholder="Пароль">
-            <div id="show-password"></div>
-        </div>
-        <button id="login-button" type="submit" (click)="clickNextPage(PageType.Profile, true)">
-            Авторизоваться
-        </button>
+    <form [formGroup]="form" style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="error-message" id="global-msg-error">вы несёте какую-то дичь.</div>
+      <div style="position: relative;">
+          <input formControlName="login_or_email" id="input-login" type="text" placeholder="Логин | E-mail">
+          <div class="error-message" id="login-error"></div>
+      </div>
+      <div style="position: relative;">
+          <input formControlName="password"  id="input-password" type="password" placeholder="Пароль">
+          <div id="show-password">
+            <img ngSrc="/home/eye.png" alt="show password" fill>
+          </div>
+          <div class="error-message" id="password-error"></div>
+      </div>
+      <button id="login-button" type="submit" (click)="onSubmit()">
+          Авторизоваться
+      </button>
     </form>
     <div style="text-align: center; margin-top: 8px;">
         <a href="#" style="color: #d3192a; text-decoration: none; font-size: 14px;">Забыли пароль?</a>
     </div>
 
     <div style="text-align: center; margin-top: 30px;">
-        <button id="registration-button" (click)="clickNextPage(PageType.Register)">
+        <button routerLink="/change/registration" id="registration-button">
             Регистрация
         </button>
     </div>

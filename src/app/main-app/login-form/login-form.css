@@ -41,3 +41,15 @@
     background-size: cover;
     cursor: pointer;
 }
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.input-error {
+  border-color: #d3192a !important;
+  box-shadow: 0 0 0 2px rgba(211, 25, 42, 0.1) !important;
+}
