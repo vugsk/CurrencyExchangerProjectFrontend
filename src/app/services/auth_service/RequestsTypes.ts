@@ -1,3 +1,4 @@
+import {CodeResponseType} from './ResponsesTypes';
 
 export interface LoginRequest {
   password: string;
@@ -20,5 +21,5 @@ export interface UpdateDataUserRequests {
 }
 
 export interface VerificationRequest {
-  id: string;
+  code: CodeResponseType;
 }

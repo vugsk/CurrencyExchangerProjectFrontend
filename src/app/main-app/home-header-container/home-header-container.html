@@ -8,18 +8,23 @@
     </a>
   </div>
   <div style="display: flex; align-items: center; gap: 15px;">
-<!--    <div class="lang-conversion">-->
-<!--      <a><img [ngSrc]="image_lang" alt="lang" height="32" width="32"></a>-->
-<!--    </div>-->
-
-    <button class="registration-or-login" (click)="buttonRegistrationOrLogin()">
+    @if (!isAuthenticated$) {
+      <button class="functions-button" routerLink="/change/login">
         Вход | Регистрация
-    </button>
-    <div id="dropdownMenu" class="dropdown-menu">
-      <a href="#" class="dropdown-item">Мои заявки</a>
-      <a href="#" class="dropdown-item">Партнёрская программа</a>
-      <a href="#" class="dropdown-item">Настройки</a>
-      <a href="#" class="dropdown-item">Выход</a>
-    </div>
+      </button>
+    } @else {
+      <div class="dropdown">
+        <button class="functions-button" (click)="toggleDropdown()">
+          Мой кабинет
+        </button>
+        <div class="dropdown-menu" [class.show]="isDropdownOpen">
+          <a routerLink="" (click)="closeDropdown()">Профиль</a>
+          <a routerLink="" (click)="closeDropdown()">Мои заявки</a>
+          <a routerLink="" (click)="closeDropdown()">Партнёрская программа</a>
+          <hr>
+          <button class="dropdown-item" (click)="onLogout()">Выход</button>
+        </div>
+      </div>
+    }
   </div>
 </header>

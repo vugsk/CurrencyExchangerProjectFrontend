@@ -1,15 +1,19 @@
 
-enum CodeResponseType {
+export enum CodeResponseType {
   USER_SUCCESS = 'USER_SUCCESS',
   USER_EXISTING = 'USER_EXISTING',
   USER_LOGIN_EXISTING = 'USER_LOGIN_EXISTING',
   USER_EMAIL_EXISTING = 'USER_EMAIL_EXISTING',
   USER_LOGOUT = 'USER_LOGOUT',
+  USER_LOGIN_SUCCESS = 'USER_LOGIN_SUCCESS',
+  USER_SESSION_ID_VALID = 'USER_SESSION_ID_VALID',
+  USER_LOGOUT_SESSION_ID_INVALID = 'USER_LOGOUT_SESSION_ID_INVALID',
 }
 
-export interface ErrorResponseServer {
-  message: string;
+export interface ErrorResponse {
+  status: number;
   code: CodeResponseType;
+  message: string;
 }
 
 interface UserType {
@@ -31,7 +35,7 @@ export function IsCodeResponseType(code: CodeResponseType) {
          code === CodeResponseType.USER_SUCCESS);
 }
 
-export function IsResponseServer(obj: any): obj is ErrorResponseServer {
+export function IsResponseServer(obj: any): obj is ErrorResponse {
   return obj && IsCodeResponseType(obj.code) &&
           typeof obj.message === 'string';
 }

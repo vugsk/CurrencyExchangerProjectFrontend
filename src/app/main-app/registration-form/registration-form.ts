@@ -1,33 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {Router, RouterLink} from '@angular/router';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpResponse} from '@angular/common/http';
 import {AbstractControl, FormControl, FormControlStatus, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgOptimizedImage} from '@angular/common';
-import {catchError, debounceTime, distinctUntilChanged, Observable, Subject, takeUntil, tap, throwError} from 'rxjs';
+import {debounceTime, Subject, takeUntil} from 'rxjs';
+import {AuthService} from '../../services/auth_service/AuthService';
+import {RegistrationRequest} from '../../services/auth_service/RequestsTypes';
+import {ErrorResponse} from '../../services/auth_service/ResponsesTypes';
 
 interface LabelInputFormRegistration {
     id: string;
     type_i: string;
     placeholder: string;
-}
-
-interface RequestRegistration {
-  login: string;
-  password: string;
-  email: string;
-  operation: string;
-}
-
-interface ErrorResponses {
-  message: string;
-  code: CodeErrorType;
-}
-
-enum CodeErrorType {
-  LOGIN_EXISTS = 'LOGIN_EXISTS',
-  EMAIL_EXISTS = 'EMAIL_EXISTS',
-  USER_EXISTS  = 'USER_EXISTS',
 }
 
 const error_mes: {[key: string]: string} = {
@@ -57,7 +42,7 @@ export class RegistrationForm implements OnInit, OnDestroy {
   protected form: FormGroup;
   private destroy$: Subject<void> = new Subject<void>;
 
-  public constructor(private titleService: Title, private http: HttpClient, private router: Router) {
+  public constructor(private titleService: Title, private router: Router, private authService: AuthService) {
     this.form = new FormGroup({
       login: new FormControl('', [
         Validators.minLength(3),
@@ -189,43 +174,20 @@ export class RegistrationForm implements OnInit, OnDestroy {
   protected onSubmit(checkbox: string): void {
     if (document.querySelector(checkbox)?.getElementsByTagName("input")[0]?.checked &&
         this.form.status === "VALID") {
-      console.log("registration form submitted");
 
-      let data: RequestRegistration = {
+      const data: RegistrationRequest = {
         login: this.form.value.login,
         password: this.form.value.password,
-        email: this.form.value.email,
-        operation: "reg",
+        email: this.form.value.email
       };
 
-      this.http.post<RequestRegistration>("/api/create/user", data, {
-        reportProgress: true,
-        observe: 'events',
-      }).pipe(
-        debounceTime(600),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$),
-        catchError((error: HttpErrorResponse): Observable<never> => {
-          let element_error: HTMLElement | null = document.getElementById('header-error');
-          if (element_error) {
-            switch (error.status) {
-              case 409:
-                element_error.style.display = "block";
-                element_error.textContent = (error.error as ErrorResponses).message;
-                break;
-              case 500:
-                console.error("\n\nError: Ошибка сервера. Попробуйте позже!!!\n\n")
-                break;
-              default:
-            }
-          }
-          return throwError((): HttpErrorResponse => error);
-        }),
-        tap((): void => {
+      this.authService.createUser(data).subscribe((response): void => {
+        if (response instanceof HttpResponse && response.status === 201) {
+          console.log("registration form submitted");
           this.router.navigate(["change/login"]).then();
-        })
-      ).subscribe();
-      return;
+        }
+      });
+
     }
   }
 
