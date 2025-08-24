@@ -181,11 +181,8 @@ export class RegistrationForm implements OnInit, OnDestroy {
         email: this.form.value.email
       };
 
-      this.authService.createUser(data).subscribe((response): void => {
-        if (response instanceof HttpResponse && response.status === 201) {
-          console.log("registration form submitted");
-          this.router.navigate(["change/login"]).then();
-        }
+      this.authService.createUser(data).pipe(takeUntil(this.destroy$)).subscribe((): void => {
+        this.router.navigate(["change/login"]).then();
       });
 
     }
@@ -202,4 +199,5 @@ export class RegistrationForm implements OnInit, OnDestroy {
       }
     }
   }
+
 }

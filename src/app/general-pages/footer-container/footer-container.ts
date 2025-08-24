@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {NgOptimizedImage} from '@angular/common';
 import {Title} from '@angular/platform-browser';
 
 interface AboutSiteType {
@@ -10,7 +9,7 @@ interface AboutSiteType {
 
 @Component({
   selector: 'app-footer-container',
-  imports: [RouterLink, NgOptimizedImage],
+  imports: [RouterLink],
   templateUrl: './footer-container.html',
   styleUrl: './footer-container.css'
 })

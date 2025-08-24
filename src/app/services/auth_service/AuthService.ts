@@ -10,35 +10,24 @@ import {
   Observable, startWith,
   Subject, switchMap, takeUntil
 } from 'rxjs';
-import {Router} from '@angular/router';
+import {GenerationErrorService} from '../generation_error_service/generationErrorService';
 
 @Injectable({providedIn: 'root'})
 export class AuthService implements OnDestroy, OnInit {
   private baseUrl: string = "/api/";
-  private basePathForError: string = "errors";
   private timeInterval: number = 60 * 60 * 1000;
   private destroy$: Subject<void> = new Subject<void>();
 
   private isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public isLoggedIn$: Observable<boolean> = this.isAuthenticated.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private errorService: GenerationErrorService) {}
 
   public ngOnInit(): void {}
   public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  private async checkStatusServer(error: HttpErrorResponse): Promise<boolean> {
-    console.log(error);
-    return this.router.navigate([
-      this.basePathForError,
-      error.status,
-      error.statusText.replaceAll(' ', '_').toUpperCase(),
-      "server"
-    ]);
-  };
 
   public login(user: LoginRequest, is_email: boolean, is_login: boolean): Observable<HttpResponse<LoginResponse>> {
     return this.http.post(this.baseUrl + "user", user, {
@@ -58,17 +47,10 @@ export class AuthService implements OnDestroy, OnInit {
       takeUntil(this.destroy$),
       map((res: HttpResponse<object>): HttpResponse<LoginResponse> => {
         this.isAuthenticated.next(true);
-        // this.checkStatusUser({code: CodeResponseType.USER_LOGIN_SUCCESS}).subscribe();
         return res as HttpResponse<LoginResponse>;
       }),
       catchError((error: HttpErrorResponse): Observable<never> => {
-        this.checkStatusServer(error).then();
-        this.router.navigate([
-          this.basePathForError,
-          (error.error as ErrorResponse).status,
-          (error.error as ErrorResponse).code,
-          "login"
-        ]).then();
+        this.errorService.createError(error, "login").then();
         return EMPTY;
       })
     );
@@ -90,13 +72,7 @@ export class AuthService implements OnDestroy, OnInit {
       takeUntil(this.destroy$),
       map((res: object): ErrorResponse => res as ErrorResponse),
       catchError((error: HttpErrorResponse): Observable<never> => {
-        this.checkStatusServer(error).then();
-        this.router.navigate([
-          this.basePathForError,
-          (error.error as ErrorResponse).status,
-          (error.error as ErrorResponse).code,
-          "registration"
-        ]).then();
+        this.errorService.createError(error, "registration").then();
         return EMPTY;
       })
     );
@@ -120,19 +96,15 @@ export class AuthService implements OnDestroy, OnInit {
         return res as ErrorResponse;
       }),
       catchError((error: HttpErrorResponse): Observable<never> => {
-        this.checkStatusServer(error).then();
-        this.router.navigate([
-          this.basePathForError,
-          (error.error as ErrorResponse).status,
-          (error.error as ErrorResponse).code,
-          "logout"
-        ]).then();
+        this.errorService.createError(error, "logout").then();
         return EMPTY;
       })
     );
   }
 
-  public updateDataUser() {}
+  public updateDataUser() {
+
+  }
 
   private updateStatusUser(): void {
     interval(this.timeInterval).pipe(

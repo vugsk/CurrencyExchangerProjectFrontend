@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
-import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-online-support',
-    imports: [
-        NgOptimizedImage
-    ],
+    imports: [],
   templateUrl: './online-support.html',
   styleUrl: './online-support.css'
 })

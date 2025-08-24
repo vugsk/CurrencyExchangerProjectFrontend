@@ -59,7 +59,7 @@ export const routes: Routes = [
       pathMatch: "full",
   },
   {
-    path: "errors/:status/:code/:page",
+    path: "errors/:page",
     component: ErrorPage,
     pathMatch: "full",
   }
