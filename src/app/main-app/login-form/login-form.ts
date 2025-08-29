@@ -9,12 +9,12 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {debounceTime, Subject, takeUntil} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {debounceTime, Observable, Subject, takeUntil} from 'rxjs';
 import {NgOptimizedImage} from '@angular/common';
 import {AuthService} from '../../services/auth_service/AuthService';
 import {LoginRequest} from '../../services/auth_service/RequestsTypes';
-import {ErrorResponse, LoginResponse} from '../../services/auth_service/ResponsesTypes';
+import {LoginResponse} from '../../services/auth_service/ResponsesTypes';
 
 const error_msg: {[key: string]: string} = {
   minlength: "слишком короткий ",
@@ -24,6 +24,7 @@ const error_msg: {[key: string]: string} = {
 
 @Component({
   selector: 'app-login-form',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink, NgOptimizedImage],
   templateUrl: './login-form.html',
   styleUrl: './login-form.css'
@@ -32,7 +33,7 @@ const error_msg: {[key: string]: string} = {
 export class LoginForm implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   protected form: FormGroup;
-  constructor(private titleService: Title, private router: Router, private http: HttpClient, private authService: AuthService) {
+  constructor(private titleService: Title, private router: Router, private authService: AuthService) {
     this.form = new FormGroup({
       login_or_email: new FormControl('', [
         Validators.required,
@@ -112,11 +113,12 @@ export class LoginForm implements OnInit, OnDestroy {
       else if ((email || login) && element_global_error) {
         element_global_error.style.display = "none";
         this.authService.login(this.form.value as LoginRequest, email, login)
-          .subscribe((response: HttpResponse<LoginResponse>): void => {
-            if (response.status === 200) {
-              this.router.navigate(['/change/profile/' + response.body?.user.id]).then();
-            }
-        });
+          .then((res: Observable<HttpResponse<LoginResponse>>): void => {
+            res.pipe(takeUntil(this.destroy$)).subscribe((response: HttpResponse<LoginResponse>): void => {
+              this.router.navigate(['/change/profile']).then();
+            });
+          }
+        )
       }
 
     }

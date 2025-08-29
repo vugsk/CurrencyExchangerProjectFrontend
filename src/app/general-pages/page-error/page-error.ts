@@ -7,6 +7,7 @@ import {GenerationErrorService} from '../../services/generation_error_service/ge
 
 @Component({
   selector: 'app-page-error',
+  standalone: true,
   imports: [FooterContainer, RouterLink],
   templateUrl: 'page-error.html',
   styleUrl: 'page-error.css',

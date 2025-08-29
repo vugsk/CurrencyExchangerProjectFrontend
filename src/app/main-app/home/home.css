@@ -21,23 +21,6 @@
   text-align: right;
 }
 
-.label-input-form-chang {
-  display: flex;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.input-from-chang {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
 .checkbox-agreement {
   display: flex;
   align-items: center;
@@ -54,6 +37,23 @@
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.label-input-form-chang {
+  display: flex;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.input-from-chang {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
   transition: all 0.3s ease;
 }
 
@@ -96,7 +96,19 @@
 }
 
 .price-cryptocurrency {
-    font-size: 12px;
-    color: #666;
-    margin-left: auto;
+  font-size: 12px;
+  color: #666;
+  margin-left: auto;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.input-error {
+  border-color: #d3192a !important;
+  box-shadow: 0 0 0 2px rgba(211, 25, 42, 0.1) !important;
 }

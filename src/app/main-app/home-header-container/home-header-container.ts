@@ -1,7 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {RouterLink} from '@angular/router';
-import {Subject, takeUntil} from 'rxjs';
+import {Observable, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../services/auth_service/AuthService';
+import {ErrorResponse} from '../../services/auth_service/ResponsesTypes';
 
 @Component({
   selector: 'app-home-header-container',
@@ -48,6 +49,10 @@ export class HomeHeaderContainer implements OnInit, OnDestroy {
   }
 
   protected onLogout(): void {
-    this.authService.logout().subscribe();
+    this.authService.logout().then((res: Observable<ErrorResponse>): void => {
+      res.pipe(takeUntil(this.destroy$)).subscribe((er): void => {
+        localStorage.removeItem('id');
+      });
+    });
   }
 }

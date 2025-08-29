@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Title} from '@angular/platform-browser';
-import {Subject, takeUntil} from 'rxjs';
+import {debounceTime, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../services/auth_service/AuthService';
 
 interface LabelProfile {
@@ -24,7 +24,10 @@ export class UserProfile implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.titleService.setTitle("Мой кабинет");
 
-    this.authService.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe((state: boolean): void => {
+    this.authService.isLoggedIn$.pipe(
+      debounceTime(500),
+      takeUntil(this.destroy$)
+    ).subscribe((state: boolean): void => {
       if (!state) {
         this.router.navigate(['/change/login']).then();
       }

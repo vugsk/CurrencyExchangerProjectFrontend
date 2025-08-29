@@ -9,6 +9,7 @@ interface AboutSiteType {
 
 @Component({
   selector: 'app-footer-container',
+  standalone: true,
   imports: [RouterLink],
   templateUrl: './footer-container.html',
   styleUrl: './footer-container.css'

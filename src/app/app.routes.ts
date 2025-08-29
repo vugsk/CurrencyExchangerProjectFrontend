@@ -7,11 +7,13 @@ import {ErrorPage} from './general-pages/page-error/page-error';
 import {inject} from '@angular/core';
 import {UserProfile} from './main-app/user-profile/user-profile';
 import {AuthService} from './services/auth_service/AuthService';
+import {debounceTime} from 'rxjs';
 
 const autoGuard: CanActivateFn = (): boolean | UrlTree => {
   let kl: boolean | UrlTree = true;
   let router: Router = inject(Router);
-  inject(AuthService).isLoggedIn$.subscribe((status: boolean): void => {
+  let authService: AuthService = inject(AuthService);
+  authService.isLoggedIn$.pipe(debounceTime(500)).subscribe((status: boolean): void => {
     kl = (status ? status : router.createUrlTree(['/change/login']));
   });
   return kl;
@@ -19,44 +21,44 @@ const autoGuard: CanActivateFn = (): boolean | UrlTree => {
 
 export const routes: Routes = [
   {
-      path: "change",
-      component: CurrencyExchangerProjectFrontendComponent,
-      children: [
-          {
-              path: "home",
-              component: Home,
-              pathMatch: "full",
-          },
-          {
-              path: "login",
-              component: LoginForm,
-              pathMatch: "full",
-          },
-          {
-              path: "registration",
-              component: RegistrationForm,
-              pathMatch: "full",
-          },
-          {
-            path: "profile/:id",
-            component: UserProfile,
-            canActivate: [autoGuard],
-          },
-          {
-              path: "",
-              redirectTo: "home",
-              pathMatch: "full",
-          }
-      ]
+    path: "change",
+    component: CurrencyExchangerProjectFrontendComponent,
+    children: [
+      {
+        path: "home",
+        component: Home,
+        pathMatch: "full",
+      },
+      {
+        path: "login",
+        component: LoginForm,
+        pathMatch: "full",
+      },
+      {
+        path: "registration",
+        component: RegistrationForm,
+        pathMatch: "full",
+      },
+      {
+        path: "profile",
+        component: UserProfile,
+        canActivate: [autoGuard],
+      },
+      {
+        path: "",
+        redirectTo: "home",
+        pathMatch: "full",
+      }
+    ]
   },
   {
-      path: "admin-panel",
-      children: []
+    path: "admin-panel",
+    children: []
   },
   {
-      path: "",
-      redirectTo: "change",
-      pathMatch: "full",
+    path: "",
+    redirectTo: "change",
+    pathMatch: "full",
   },
   {
     path: "errors/:page",

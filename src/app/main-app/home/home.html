@@ -1,60 +1,63 @@
 <main class="main-home">
   <div class="information-change">
     <div>
-      <div style="font-size: 14px; color: #666;">T-Банк RUB → Bitcoin BTC</div>
-      <div style="font-size: 14px; color: #333;"><strong>9976707 RUB = 1 BTC</strong></div>
+      <div style="font-size: 14px; color: #666;">{{ bank$.name }} → {{ cryptocurrency$.cryptocurrency }}</div>
+      <div style="font-size: 14px; color: #333;"><strong>{{ num_currency }} {{ bank$.currency }} = {{ num_crypto }} {{ cryptocurrency$.price_currency }}</strong></div>
     </div>
     <div class="sum-change">
       Сумма обмена:<br>
       От 25000 RUB до 300000 RUB
     </div>
   </div>
+  <form id="form-create-request" [formGroup]="form" (ngSubmit)="onSubmit('agreement')">
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+      @for (feed of feedsCurrency; track feed.name) {
+        <div style="flex: 1;">
+          <div class="label-sender">
+            {{ feed.name }}
+          </div>
+          <div style="position: relative; margin-bottom: 15px;">
+            <input id="input-sum-chang" type="text" placeholder="Введите сумму" [formControlName]="feed.controlNameInput">
+          </div>
+          <div class="currency-feed">
+            @for (column of feed.array; track column) {
+              @if ('name' in column) {
+                <div class="column-feed bank" (click)="onSelectColumnCurrency(column)">
+                    <div style="font-size: 14px;">{{ column.name }} {{ column.currency }}</div>
+                </div>
+              }
+              @else if ('price' in column) {
+                <div class="column-feed currency" (click)="onSelectColumnCryptoCurrency(column)">
+                  <div style="font-size: 14px;">{{ column.cryptocurrency }} {{ column.price_currency }}</div>
+                  <div class="price-cryptocurrency">{{ column.price }} {{ column.price_currency }}</div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
 
-  <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-    @for (feed of feeds; track feed.name) {
-      <div style="flex: 1;">
-        <div class="label-sender">
-          {{ feed.name }}
-        </div>
-        <div style="position: relative; margin-bottom: 15px;">
-          <input id="input-sum-chang" type="text" placeholder="Введите сумму">
-        </div>
-        <div class="currency-feed">
-          @for (column of feed.array; track column) {
-            @if (isColumnBank(column)) {
-              <div class="column-feed bank" (click)="activeFunctionColumnFeed(column, 'div.bank')">
-                  <div style="font-size: 14px;">{{ column.name }} {{ column.currency }}</div>
-              </div>
-            }
-            @else if (isColumnCurrency(column)) {
-              <div class="column-feed currency" (click)="activeFunctionColumnFeed(column, 'div.currency')">
-                <div style="font-size: 14px;">{{ column.cryptocurrency }} {{ column.price_currency }}</div>
-                <div class="price-cryptocurrency">{{ column.price }} {{ column.price_currency }}</div>
-              </div>
-            }
-          }
-        </div>
+    <div class="error-message"></div>
+
+    @for (label_input of (labelsInputs$ | async); track label_input.label) {
+      <div style="margin-bottom: 20px;">
+        <label class="label-input-form-chang">
+          {{ label_input.label }}
+        </label>
+        <input class="input-from-chang" type="text" [placeholder]="label_input.placeholder" [formControlName]="label_input.controlName">
       </div>
     }
-  </div>
 
-  @for (label_input of arrayLabelsInputs; track label_input.label) {
-    <div style="margin-bottom: 20px;">
-      <label class="label-input-form-chang">
-        {{ label_input.label }}
+    <div class="checkbox-agreement">
+      <input type="checkbox" id="agreement" style="margin-right: 8px; width: 16px; height: 16px;">
+      <label for="agreement" style="font-size: 14px; color: #666;">
+        Я согласен с <a style="color: #3498db; text-decoration: underline;">условиями соглашения и AML политикой</a>
       </label>
-      <input class="input-from-chang" type="text" [placeholder]="label_input.placeholder">
     </div>
-  }
 
-  <div class="checkbox-agreement">
-    <input type="checkbox" id="agreement" style="margin-right: 8px; width: 16px; height: 16px;">
-    <label for="agreement" style="font-size: 14px; color: #666;">
-      Я согласен с <a style="color: #3498db; text-decoration: underline;">условиями соглашения и AML политикой</a>
-    </label>
-  </div>
-
-  <button id="create-request" (click)="createRequest('div.checkbox-agreement', 'button#create-request')">
-    Создать заявку
-  </button>
+    <button id="create-request" type="submit">
+      Создать заявку
+    </button>
+  </form>
 </main>

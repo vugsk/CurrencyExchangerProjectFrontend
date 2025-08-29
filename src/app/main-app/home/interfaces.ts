@@ -10,13 +10,15 @@ export interface ColumnCurrency {
 }
 
 export interface FeedBank {
-    name: string;
-    array: ColumnBank[];
+  name: string;
+  array: ColumnBank[];
+  controlNameInput: string;
 }
 
 export interface FeedCurrency {
-    name: string;
-    array: ColumnCurrency[];
+  name: string;
+  array: ColumnCurrency[];
+  controlNameInput: string;
 }
 
 export type Feed = FeedCurrency | FeedBank;

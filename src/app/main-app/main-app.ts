@@ -6,11 +6,12 @@ import {FooterContainer} from '../general-pages/footer-container/footer-containe
 import {OnlineSupport} from './online-support/online-support';
 
 @Component({
-    selector: 'app-currencyExchangerProjectFrontend',
-    imports: [RouterOutlet, HomeHeaderContainer, FooterContainer, OnlineSupport],
-    templateUrl: 'main-app.html',
-    styleUrl: 'main-app.css',
-    providers: [Title]
+  selector: 'app-currencyExchangerProjectFrontend',
+  standalone: true,
+  imports: [RouterOutlet, HomeHeaderContainer, FooterContainer, OnlineSupport],
+  templateUrl: 'main-app.html',
+  styleUrl: 'main-app.css',
+  providers: [Title]
 })
 
 export class CurrencyExchangerProjectFrontendComponent {

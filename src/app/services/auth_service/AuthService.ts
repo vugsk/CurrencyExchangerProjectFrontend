@@ -1,35 +1,75 @@
 import {Injectable, OnDestroy, OnInit} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {LoginRequest, RegistrationRequest} from './RequestsTypes';
+import {
+  CreateRequest_Request,
+  CreateRequestRegistration_Request,
+  LoginRequest,
+  RegistrationRequest
+} from './RequestsTypes';
 import {ErrorResponse, LoginResponse} from './ResponsesTypes';
 import {
   BehaviorSubject,
   catchError,
   debounceTime,
-  distinctUntilChanged, EMPTY, interval, map,
+  distinctUntilChanged, EMPTY, map,
   Observable, startWith,
-  Subject, switchMap, takeUntil
+  Subject, takeUntil, tap
 } from 'rxjs';
 import {GenerationErrorService} from '../generation_error_service/generationErrorService';
 
 @Injectable({providedIn: 'root'})
 export class AuthService implements OnDestroy, OnInit {
   private baseUrl: string = "/api/";
-  private timeInterval: number = 60 * 60 * 1000;
   private destroy$: Subject<void> = new Subject<void>();
 
   private isAuthenticated: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public isLoggedIn$: Observable<boolean> = this.isAuthenticated.asObservable();
 
-  constructor(private http: HttpClient, private errorService: GenerationErrorService) {}
+  constructor(private http: HttpClient, private errorService: GenerationErrorService) {
+    http.get(this.baseUrl + "user", {
+      params: {
+        operation: "status",
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
+    }).pipe(
+      startWith(0),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      catchError(async (error: HttpErrorResponse): Promise<boolean> => {
+        switch (error.status) {
+          case 401:
+            return false;
+          default:
+            this.errorService.createError(error, "login").then();
+            return false;
+        }
+      })
+    ).subscribe((res: boolean | Object): void => {
+      if (typeof res === 'boolean') {
+        this.isAuthenticated.next(res);
+      }
+      else {
+        switch ((res as ErrorResponse).code) {
+          case "USER_SESSION_ID_VALID":
+            this.isAuthenticated.next(true);
+            break;
+        }
+      }
+    });
+  }
 
-  public ngOnInit(): void {}
+  public ngOnInit(): void {
+
+  }
   public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  public login(user: LoginRequest, is_email: boolean, is_login: boolean): Observable<HttpResponse<LoginResponse>> {
+  public async login(user: LoginRequest, is_email: boolean, is_login: boolean): Promise<Observable<HttpResponse<LoginResponse>>> {
     return this.http.post(this.baseUrl + "user", user, {
       params: {
         operation: "login",
@@ -56,7 +96,7 @@ export class AuthService implements OnDestroy, OnInit {
     );
   }
 
-  public createUser(user: RegistrationRequest): Observable<ErrorResponse> {
+  public async createUser(user: RegistrationRequest): Promise<Observable<ErrorResponse>> {
     return this.http.post(this.baseUrl + "user", user, {
       params: {
         operation: "create"
@@ -78,7 +118,7 @@ export class AuthService implements OnDestroy, OnInit {
     );
   }
 
-  public logout(): Observable<ErrorResponse> {
+  public async logout(): Promise<Observable<ErrorResponse>> {
     return this.http.get(this.baseUrl + "user", {
       params: {
         operation: "logout",
@@ -106,36 +146,21 @@ export class AuthService implements OnDestroy, OnInit {
 
   }
 
-  private updateStatusUser(): void {
-    interval(this.timeInterval).pipe(
-      startWith(0),
-      switchMap((): Observable<ErrorResponse> => this.http.get(this.baseUrl + "user", {
-          params: {
-            operation: "status",
-          },
-          reportProgress: true,
-          withCredentials: true,
-          observe: "body",
-          mode: 'cors'
-        }).pipe(
-          map((response: object): ErrorResponse => response as ErrorResponse),
-          catchError((error: HttpErrorResponse): Observable<never> => {
-            switch (error.status) {
-              case 401:
-                this.isAuthenticated.next(false);
-                break;
-            }
-            return EMPTY;
-          })
-        )
-      ),
-      takeUntil(this.destroy$),
-    ).subscribe((response: ErrorResponse): void => {
-      switch (response.code) {
-        case "USER_SESSION_ID_VALID":
-          this.isAuthenticated.next(true);
-          break;
+  public createRequest(request: CreateRequest_Request | CreateRequestRegistration_Request): Observable<ErrorResponse> {
+    return this.http.post(this.baseUrl + "create_request", request, {
+      params: {
+        registration: 'telegramId' in request
       }
-    });
+    }).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): ErrorResponse => res as ErrorResponse),
+      catchError((error: HttpErrorResponse): Observable<never> => {
+        this.errorService.createError(error, "create_request").then();
+        return EMPTY;
+      })
+    );
   }
+
 }

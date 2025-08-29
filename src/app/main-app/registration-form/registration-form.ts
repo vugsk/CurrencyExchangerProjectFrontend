@@ -4,7 +4,7 @@ import {Router, RouterLink} from '@angular/router';
 import {HttpResponse} from '@angular/common/http';
 import {AbstractControl, FormControl, FormControlStatus, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgOptimizedImage} from '@angular/common';
-import {debounceTime, Subject, takeUntil} from 'rxjs';
+import {debounceTime, Observable, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../services/auth_service/AuthService';
 import {RegistrationRequest} from '../../services/auth_service/RequestsTypes';
 import {ErrorResponse} from '../../services/auth_service/ResponsesTypes';
@@ -26,6 +26,7 @@ const error_mes: {[key: string]: string} = {
 
 @Component({
   selector: 'app-registration-form',
+  standalone: true,
   imports: [ReactiveFormsModule, NgOptimizedImage, RouterLink],
   templateUrl: './registration-form.html',
   styleUrl: './registration-form.css',
@@ -181,8 +182,10 @@ export class RegistrationForm implements OnInit, OnDestroy {
         email: this.form.value.email
       };
 
-      this.authService.createUser(data).pipe(takeUntil(this.destroy$)).subscribe((): void => {
-        this.router.navigate(["change/login"]).then();
+      this.authService.createUser(data).then((res: Observable<ErrorResponse>): void =>{
+        res.pipe(takeUntil(this.destroy$)).subscribe((): void => {
+          this.router.navigate(["change/login"]).then();
+        });
       });
 
     }
