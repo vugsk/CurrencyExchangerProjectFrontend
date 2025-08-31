@@ -7,6 +7,7 @@ import {AsyncPipe} from '@angular/common';
 import {ColumnBank, ColumnCurrency, Currencies, Feed, LabelInputDataUserForChang} from './interfaces';
 import {HttpClient} from '@angular/common/http';
 import {ExchangeTransfer} from '../../services/auth_service/RequestsTypes';
+import {ErrorResponse} from '../../services/auth_service/ResponsesTypes';
 
 const arrayLabelsInputs: LabelInputDataUserForChang[] = [
   {
@@ -342,7 +343,9 @@ export class Home implements OnInit, OnDestroy {
           this.authService.createRequest({
             telegramId: this.form.get("telegramId")?.value,
             transfer: exchangeTransfer
-          }).subscribe();
+          }).then((response: Observable<ErrorResponse>): void => {
+            response.subscribe();
+          });
         }
         else {
           this.authService.createRequest({
@@ -352,7 +355,9 @@ export class Home implements OnInit, OnDestroy {
               telegramId: this.form.get("telegramId")?.value
             },
             transfer: exchangeTransfer
-          }).subscribe();
+          }).then((response: Observable<ErrorResponse>): void => {
+            response.subscribe();
+          });
         }
       });
     }

@@ -4,16 +4,17 @@ import {
   CreateRequest_Request,
   CreateRequestRegistration_Request,
   LoginRequest,
-  RegistrationRequest
+  RegistrationRequest,
+  RecoveryPasswordRequest
 } from './RequestsTypes';
 import {ErrorResponse, LoginResponse} from './ResponsesTypes';
 import {
   BehaviorSubject,
   catchError,
   debounceTime,
-  distinctUntilChanged, EMPTY, map,
+  distinctUntilChanged, EMPTY, lastValueFrom, map,
   Observable, startWith,
-  Subject, takeUntil, tap
+  Subject, takeUntil
 } from 'rxjs';
 import {GenerationErrorService} from '../generation_error_service/generationErrorService';
 
@@ -146,11 +147,15 @@ export class AuthService implements OnDestroy, OnInit {
 
   }
 
-  public createRequest(request: CreateRequest_Request | CreateRequestRegistration_Request): Observable<ErrorResponse> {
+  public async createRequest(request: CreateRequest_Request | CreateRequestRegistration_Request): Promise<Observable<ErrorResponse>> {
     return this.http.post(this.baseUrl + "create_request", request, {
       params: {
         registration: 'telegramId' in request
-      }
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
     }).pipe(
       debounceTime(500),
       distinctUntilChanged(),
@@ -163,4 +168,26 @@ export class AuthService implements OnDestroy, OnInit {
     );
   }
 
+  public async recoveryPassword(request: RecoveryPasswordRequest, is_email: boolean, is_login: boolean): Promise<ErrorResponse> {
+    return lastValueFrom(this.http.post(this.baseUrl + "user", request, {
+      params: {
+        operation: "recovery",
+        login: is_login,
+        email: is_email
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
+    }).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): ErrorResponse => res as ErrorResponse),
+      catchError((error: HttpErrorResponse): Observable<never> => {
+        this.errorService.createError(error, "recovery").then();
+        return EMPTY;
+      })
+    ));
+  }
 }

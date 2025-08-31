@@ -8,6 +8,7 @@ import {inject} from '@angular/core';
 import {UserProfile} from './main-app/user-profile/user-profile';
 import {AuthService} from './services/auth_service/AuthService';
 import {debounceTime} from 'rxjs';
+import {ForgotMyPassword} from './main-app/forgot-my-password/forgot-my-password';
 
 const autoGuard: CanActivateFn = (): boolean | UrlTree => {
   let kl: boolean | UrlTree = true;
@@ -43,6 +44,17 @@ export const routes: Routes = [
         path: "profile",
         component: UserProfile,
         canActivate: [autoGuard],
+      },
+      {
+        path: "recovery",
+        component: ForgotMyPassword,
+        pathMatch: "full",
+        children: [
+          {
+            path: "new-password",
+            pathMatch: "full"
+          }
+        ]
       },
       {
         path: "",
