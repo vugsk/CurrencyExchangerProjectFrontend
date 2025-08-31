@@ -48,13 +48,7 @@ export const routes: Routes = [
       {
         path: "recovery",
         component: ForgotMyPassword,
-        pathMatch: "full",
-        children: [
-          {
-            path: "new-password",
-            pathMatch: "full"
-          }
-        ]
+        pathMatch: "full"
       },
       {
         path: "",
