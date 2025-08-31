@@ -1,50 +1,12 @@
-import {
-  AfterViewInit,
-  Component, ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  Renderer2,
-} from '@angular/core';
+import {Component, ElementRef, inject, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {
-  BehaviorSubject,
-  debounceTime,
-  distinctUntilChanged,
-  lastValueFrom,
-  map,
-  Observable,
-  Subject,
-  takeUntil,
-  tap
-} from 'rxjs';
-import {
-  AbstractControl,
-  FormControl,
-  FormControlStatus,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import {debounceTime, distinctUntilChanged, lastValueFrom, map, Observable, Subject, takeUntil} from 'rxjs';
+import {AbstractControl, FormControl, FormControlStatus, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../services/auth_service/AuthService';
 import {AsyncPipe} from '@angular/common';
-import {ColumnBank, ColumnCurrency, Feed} from './interfaces';
+import {ColumnBank, ColumnCurrency, Currencies, Feed, LabelInputDataUserForChang} from './interfaces';
 import {HttpClient} from '@angular/common/http';
-import {
-  CreateRequest_Request,
-  CreateRequestRegistration_Request,
-  ExchangeTransfer, User
-} from '../../services/auth_service/RequestsTypes';
-
-interface LabelInputDataUserForChang {
-  label: string;
-  placeholder: string;
-  controlName: string;
-}
-
-interface Currencies {
-  [key: string]: {[key: string]: number};
-}
+import {ExchangeTransfer} from '../../services/auth_service/RequestsTypes';
 
 const arrayLabelsInputs: LabelInputDataUserForChang[] = [
   {
@@ -123,6 +85,12 @@ const feeds: Feed[] = [
     ]
   },
 ]
+const errors_messages: { [key: string ]: string } = {
+  minlength: "слишком короткий ",
+  maxlength: "слишком длинный ",
+  required: "поле пустое. ",
+  pattern: " не подходит под условия: "
+};
 
 @Component({
   selector: 'app-home',
@@ -151,6 +119,14 @@ export class Home implements OnInit, OnDestroy {
   protected feedsCurrency: Feed[] = feeds;
   private destroy$: Subject<void> = new Subject<void>();
   protected form: FormGroup;
+  protected cryptocurrency$: ColumnCurrency = feeds[1].array[0] as ColumnCurrency;
+  protected bank$: ColumnBank = feeds[0].array[0] as ColumnBank;
+  protected num_currency: number = 0;
+  protected num_crypto: number = 0;
+
+  private currencyExchangeRatesForCrypt: Promise<Currencies> = this.ddd("RUB", "BTC,ETH,USDC,TRX,TON,ETC,USDT");
+  private cryptoToCurrenciesRates: Promise<Currencies> = this.ddd("BTC,ETH,USDC,TRX,TON,ETC,USDT", "RUB");
+  private isUpdating: boolean = false;
 
   constructor(private titleService: Title, private elementRef: ElementRef, private authService: AuthService) {
     this.form = new FormGroup({
@@ -193,124 +169,151 @@ export class Home implements OnInit, OnDestroy {
       inputSumCryptoCurrency: new FormControl('', [
         Validators.minLength(2),
         Validators.required,
-        Validators.pattern(/^[0-9]+$/),
+        Validators.pattern(/^[0-9.]+$/),
       ]),
     });
   }
-  private currencyExchangeRatesForCrypt: Promise<Currencies> =
-    lastValueFrom(inject(HttpClient).get("https://min-api.cryptocompare.com/data/pricemulti", {
-      params: {
-        "fsyms": "RUB",
-        "tsyms": "BTC,ETH,USDC,TRX,TON,ETC,USDT"
-      }
-    }).pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$),
-      map((res: object): Currencies => res as Currencies)
-    ));
-  private cryptoToCurrenciesRates: Promise<Currencies> =
-    lastValueFrom(inject(HttpClient).get("https://min-api.cryptocompare.com/data/pricemulti", {
-      params: {
-        "fsyms": "BTC,ETH,USDC,TRX,TON,ETC,USDT",
-        "tsyms": "RUB"
-      }
-    }).pipe(
-      debounceTime(200),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$),
-      map((res: object): Currencies => res as Currencies)
-    ));
-
-  public cryptocurrency$: ColumnCurrency = feeds[1].array[0] as ColumnCurrency;
-  public bank$: ColumnBank = feeds[0].array[0] as ColumnBank;
-
-  protected num_currency: number = 0;
-  protected num_crypto: number = 0;
-
-  private isUpdating: boolean = false;
 
   public ngOnInit(): void {
     this.titleService.setTitle("Home");
 
-    const func = (form: AbstractControl<any, any> | null, func: { (value: number): void }): void => {
-      form?.valueChanges?.pipe(distinctUntilChanged(), takeUntil(this.destroy$))?.subscribe(func);
-    };
+    const func: (form: (AbstractControl<any, any> | null), formNameControl: string, isCrypt: boolean) => Promise<void> =
+      async (form: AbstractControl<any, any> | null, formNameControl: string, isCrypt: boolean ): Promise<void> => {
+        form?.valueChanges?.pipe(distinctUntilChanged(), takeUntil(this.destroy$))?.subscribe((value: number): void => {
+          if (this.isUpdating) return;
+          this.isUpdating = true;
+          try {
+            if (!isCrypt)
+              this.num_currency = value;
+            else
+              this.num_crypto = value;
+            if (this.cryptocurrency$ && this.bank$ && value > 0) {
+              if (!isCrypt) {
+                this.currencyExchangeRatesForCrypt.then((c: Currencies): void => {
+                  this.form.get(formNameControl)?.setValue(
+                    value * c["RUB"][this.cryptocurrency$.price_currency],
+                    { emitEvent: false }
+                  );
+                  this.num_crypto = this.form.get(formNameControl)?.value;
+                });
+              }
+              else {
+                this.cryptoToCurrenciesRates.then((c: Currencies): void => {
+                  this.form.get(formNameControl)?.setValue(
+                    value * c[this.cryptocurrency$.price_currency]["RUB"],
+                    { emitEvent: false }
+                  );
+                  this.num_currency = this.form.get(formNameControl)?.value;
+                });
+              }
+            }
+            else if (this.cryptocurrency$ && this.bank$ && value <= 0) {
+              if (!isCrypt)
+                this.num_currency = 0;
+              else
+                this.num_crypto = 0;
+            }
+          }
+          finally {
+            this.isUpdating = false;
+          }
+        });
+      };
+    const f: (form: (AbstractControl<any, any> | null), formNameControl: string) => Promise<void> =
+      async (form: AbstractControl<any, any> | null, formNameControl: string): Promise<void> => {
+        form?.statusChanges?.pipe(debounceTime(300), takeUntil(this.destroy$))?.subscribe((status: FormControlStatus) => {
+          let input_el: HTMLInputElement = this.elementRef.nativeElement.querySelector("input#" + formNameControl);
+          let div_error: HTMLElement = this.elementRef.nativeElement.querySelector("div.error-message");
+          div_error.textContent = "";
+          switch (status) {
+            case "INVALID":
+              const el_name: string = ((name_element: string): string => {
+                switch (name_element) {
+                  case "email":
+                    return "email";
+                  case "name":
+                    return "имя";
+                  case "bankCard":
+                    return "номер банковской карты";
+                  case "cryptoWallet":
+                    return "криптокошелек";
+                  case "telegramId":
+                    return "телеграм ID";
+                  default:
+                    return ""
+                }
+              })(formNameControl);
+              input_el.classList.add("input-error");
+              div_error.style.display = "block";
+              for (const key in form?.errors) {
+                switch (key) {
+                  case "maxLength":
+                  case "minlength":
+                    div_error.textContent += errors_messages[key] + el_name + '. ';
+                    break;
+                  case "pattern":
+                    div_error.textContent = ((text: string | null): string => {
+                      return text === '' || text === null ? el_name : text.replace('. ', ' и');
+                    })(div_error.textContent) + errors_messages[key] + ((name_element: string): string => {
+                      switch (name_element) {
+                        case "email":
+                          return "a-z, A-Z, 0-9, '@._-'. ";
+                        case "name":
+                          return "А-Я, а-я";
+                        case "bankCard":
+                          return "0-9";
+                        case "cryptoWallet":
+                          return "a-z, A-Z, 0-9";
+                        case "telegramId":
+                          return "a-z, A-Z, 0-9, _, @";
+                        default:
+                          return ""
+                      }
+                    })(formNameControl);
+                    break;
+                  case "required":
+                    div_error.textContent += errors_messages[key];
+                    break;
+                }
+              }
+              break;
+            case "VALID":
+              input_el.classList.remove("input-error");
+              div_error.style.display = "none";
+              break;
+          }
+        });
+      };
+    const ff: (form: (AbstractControl<any, any> | null), formNameControl: string) => Promise<void> =
+      async (form: AbstractControl<any, any> | null, formNameControl: string): Promise<void> => {
+        form?.statusChanges?.pipe(
+          takeUntil(this.destroy$),
+          debounceTime(500),
+          distinctUntilChanged()
+        )?.subscribe((status: FormControlStatus) => {
+          let input_el: HTMLInputElement = this.elementRef.nativeElement.querySelector("input#" + formNameControl);
+          switch (status) {
+            case "INVALID":
+              input_el.classList.add("input-error");
+              break;
+            case "VALID":
+              input_el.classList.remove("input-error");
+              break;
+          }
+        });
+      };
 
-    const f = (form: AbstractControl<any, any> | null, func: (value: any) => void): void => {
-      form?.statusChanges?.pipe(debounceTime(300), takeUntil(this.destroy$))?.subscribe(func);
-    };
+    func(this.form.get("inputSumCurrency"), "inputSumCryptoCurrency", false).then();
+    func(this.form.get("inputSumCryptoCurrency"), "inputSumCurrency", true).then();
 
-    func(this.form.get("inputSumCurrency"), async (value: number): Promise<void> => {
-      if (this.isUpdating) return;
+    f(this.form.get("email"), "email").then();
+    f(this.form.get("name"), "name").then();
+    f(this.form.get("bankCard"), "bankCard").then();
+    f(this.form.get("cryptoWallet"), "cryptoWallet").then();
+    f(this.form.get("telegramId"), "telegramId").then();
 
-      this.isUpdating = true;
-      try {
-        this.num_currency = value;
-        if (this.cryptocurrency$ && this.bank$ && value > 0) {
-          this.currencyExchangeRatesForCrypt.then((c: Currencies): void => {
-            this.form.get("inputSumCryptoCurrency")?.setValue(
-              value * c["RUB"][this.cryptocurrency$.price_currency],
-              { emitEvent: false }
-            );
-            this.num_crypto = this.form.get("inputSumCryptoCurrency")?.value;
-          });
-        }
-        else if (this.cryptocurrency$ && this.bank$ && value <= 0) {
-          this.num_currency = 0;
-          this.form.get("inputSumCurrency")?.setValue(0);
-        }
-      }
-      finally {
-        this.isUpdating = false;
-      }
-    });
-
-    func(this.form.get("inputSumCryptoCurrency"), async (value: number): Promise<void> => {
-      if (this.isUpdating) return;
-      this.isUpdating = true;
-      try {
-        this.num_crypto = value;
-        if (this.bank$ && this.cryptocurrency$ && value > 0) {
-          this.cryptoToCurrenciesRates.then((c: Currencies): void => {
-            this.form.get("inputSumCurrency")?.setValue(
-              value * c[this.cryptocurrency$.price_currency]["RUB"],
-              { emitEvent: false }
-            );
-            this.num_currency = this.form.get("inputSumCurrency")?.value;
-          });
-        }
-        else if (this.bank$ && this.cryptocurrency$ && value <= 0) {
-          this.num_crypto = 0;
-          this.form.get("inputSumCryptoCurrency")?.setValue(0);
-        }
-      }
-      finally {
-        this.isUpdating = false;
-      }
-    });
-
-    // TODO сделать ошибки и для списков тоже
-    f(this.form.get("email"), async (status: FormControlStatus): Promise<void> => {
-      console.log("email", status);
-    });
-
-    f(this.form.get("name"), async (status: FormControlStatus): Promise<void> => {
-      console.log("name", status);
-    });
-
-    f(this.form.get("bankCard"), async (status: FormControlStatus): Promise<void> => {
-      console.log("bankCard", status);
-    });
-
-    f(this.form.get("cryptoWallet"), async (status: FormControlStatus): Promise<void> => {
-      console.log("cryptoWallet", status);
-    });
-
-    f(this.form.get("telegramId"), async (status: FormControlStatus): Promise<void> => {
-      console.log("telegramId", status);
-    });
-
+    ff(this.form.get("inputSumCurrency"), "inputSumCurrency").then();
+    ff(this.form.get("inputSumCryptoCurrency"), "inputSumCryptoCurrency").then();
   }
 
   public ngOnDestroy(): void {
@@ -320,7 +323,6 @@ export class Home implements OnInit, OnDestroy {
 
   protected onSubmit(id: string): void {
     if ((document.getElementById(id) as HTMLInputElement)?.checked && this.form.valid) {
-      console.log("ddd", this.form.get("inputSumCurrency")?.value);
       this.authService.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe((status: boolean): void => {
         const exchangeTransfer: ExchangeTransfer = {
           cryptoWallet: this.form.get("cryptoWallet")?.value,
@@ -369,30 +371,46 @@ export class Home implements OnInit, OnDestroy {
   protected async onSelectColumnCurrency(obj: ColumnBank): Promise<void> {
     await this.func("bank", obj.name + ' ' + obj.currency);
     this.bank$ = obj;
-
-    if (this.cryptocurrency$ && this.form.get("inputSumCurrency")?.value > 0) {
-      this.currencyExchangeRatesForCrypt.then((c: Currencies): void => {
-        this.form.get("inputSumCryptoCurrency")?.setValue(
-          this.form.get("inputSumCurrency")?.value * c["RUB"][this.cryptocurrency$.price_currency],
-          { emitEvent: false }
-        );
-      });
-      this.num_crypto = this.form.get("inputSumCryptoCurrency")?.value;
-    }
+    await this.dd(this.cryptocurrency$, "inputSumCurrency");
   }
 
   protected async onSelectColumnCryptoCurrency(obj: ColumnCurrency): Promise<void> {
     await this.func("currency", obj.cryptocurrency + ' ' + obj.price_currency);
     this.cryptocurrency$ = obj;
+    await this.dd(this.bank$, "inputSumCryptoCurrency");
+  }
 
-    if (this.bank$ && this.form.get("inputSumCryptoCurrency")?.value > 0) {
-      this.cryptoToCurrenciesRates.then((c: Currencies): void => {
-        this.form.get("inputSumCurrency")?.setValue(
-          this.form.get("inputSumCryptoCurrency")?.value * c[obj.price_currency][this.bank$.currency],
-          { emitEvent: false }
-        );
-      });
-      this.num_currency = this.form.get("inputSumCurrency")?.value;
+  private async dd(obj: ColumnBank | ColumnCurrency, formNameControl: string): Promise<void> {
+    if (obj && this.form.get(formNameControl)?.value > 0) {
+      if ('price' in obj) {
+        this.currencyExchangeRatesForCrypt.then((c: Currencies): void => {
+          this.form.get("inputSumCryptoCurrency")?.setValue(
+            this.form.get(formNameControl)?.value * c["RUB"][this.cryptocurrency$.price_currency],
+            {emitEvent: false}
+          );
+        });
+        this.num_crypto = this.form.get("inputSumCryptoCurrency")?.value;
+      }
+      else if ('name' in obj) {
+        this.cryptoToCurrenciesRates.then((c: Currencies): void => {
+          this.form.get("inputSumCurrency")?.setValue(
+            this.form.get(formNameControl)?.value * c[this.cryptocurrency$.price_currency][this.bank$.currency],
+            { emitEvent: false }
+          );
+        });
+        this.num_currency = this.form.get("inputSumCurrency")?.value;
+      }
     }
+  }
+
+  private ddd(fsyms: string, tsyms: string): Promise<Currencies> {
+    return lastValueFrom(inject(HttpClient).get("https://min-api.cryptocompare.com/data/pricemulti", {
+      params: { "fsyms": fsyms, "tsyms": tsyms }
+    }).pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): Currencies => res as Currencies)
+    ));
   }
 }

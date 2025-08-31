@@ -17,7 +17,7 @@
             {{ feed.name }}
           </div>
           <div style="position: relative; margin-bottom: 15px;">
-            <input id="input-sum-chang" type="text" placeholder="Введите сумму" [formControlName]="feed.controlNameInput">
+            <input [id]="feed.controlNameInput" class="input-sum-chang" type="text" placeholder="Введите сумму" [formControlName]="feed.controlNameInput">
           </div>
           <div class="currency-feed">
             @for (column of feed.array; track column) {
@@ -29,7 +29,6 @@
               @else if ('price' in column) {
                 <div class="column-feed currency" (click)="onSelectColumnCryptoCurrency(column)">
                   <div style="font-size: 14px;">{{ column.cryptocurrency }} {{ column.price_currency }}</div>
-                  <div class="price-cryptocurrency">{{ column.price }} {{ column.price_currency }}</div>
                 </div>
               }
             }
@@ -45,7 +44,7 @@
         <label class="label-input-form-chang">
           {{ label_input.label }}
         </label>
-        <input class="input-from-chang" type="text" [placeholder]="label_input.placeholder" [formControlName]="label_input.controlName">
+        <input [id]="label_input.controlName" class="input-from-chang" type="text" [placeholder]="label_input.placeholder" [formControlName]="label_input.controlName">
       </div>
     }
 

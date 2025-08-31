@@ -1,3 +1,13 @@
+export interface LabelInputDataUserForChang {
+  label: string;
+  placeholder: string;
+  controlName: string;
+}
+
+export interface Currencies {
+  [key: string]: {[key: string]: number};
+}
+
 export interface ColumnBank {
     name: string;
     currency: string;
