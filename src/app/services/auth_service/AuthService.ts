@@ -168,12 +168,10 @@ export class AuthService implements OnDestroy, OnInit {
     );
   }
 
-  public async recoveryPassword(request: RecoveryPasswordRequest, is_email: boolean, is_login: boolean): Promise<ErrorResponse> {
+  public async recoveryPassword(request: RecoveryPasswordRequest): Promise<ErrorResponse> {
     return lastValueFrom(this.http.post(this.baseUrl + "user", request, {
       params: {
-        operation: "recovery",
-        login: is_login,
-        email: is_email
+        operation: "recovery"
       },
       reportProgress: true,
       withCredentials: true,

@@ -17,6 +17,7 @@ import {LoginRequest, RecoveryPasswordRequest} from '../../services/auth_service
 })
 export class ForgotMyPassword implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
+  private isDropdownOpen: boolean = false;
   protected form: FormGroup;
 
   constructor(private titleService: Title, private elementRef: ElementRef, private authService: AuthService) {
@@ -72,11 +73,13 @@ export class ForgotMyPassword implements OnInit, OnDestroy {
 
   protected onSubmit(): void {
     if (this.form.valid) {
-      const email: boolean = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        .test((this.form.value as RecoveryPasswordRequest).email_or_login);
-      const login: boolean = /^[a-zA-Z0-9_-]+$/.test((this.form.value as RecoveryPasswordRequest).email_or_login);
-      this.authService.recoveryPassword((this.form.value as RecoveryPasswordRequest), email, login).then();
+      this.authService.recoveryPassword((this.form.value as RecoveryPasswordRequest)).then();
+      this.isDropdownOpen = true;
     }
+  }
+
+  protected onSubmitCodePremiss() {
+
   }
 
 }

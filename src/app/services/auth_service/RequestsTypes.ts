@@ -54,6 +54,10 @@ export interface CreateRequestRegistration_Request {
   transfer: ExchangeTransfer;
 }
 
+export interface CodeEmailResponse {
+  code: string;
+}
+
 export interface RecoveryPasswordRequest {
   email_or_login: string;
 }
