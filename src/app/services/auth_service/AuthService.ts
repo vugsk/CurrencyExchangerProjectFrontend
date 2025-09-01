@@ -5,7 +5,7 @@ import {
   CreateRequestRegistration_Request,
   LoginRequest,
   RegistrationRequest,
-  RecoveryPasswordRequest
+  RecoveryPasswordRequest, CodeEmailRequest, CodeRequest, NewPasswordRequest
 } from './RequestsTypes';
 import {ErrorResponse, LoginResponse} from './ResponsesTypes';
 import {
@@ -184,6 +184,69 @@ export class AuthService implements OnDestroy, OnInit {
       map((res: object): ErrorResponse => res as ErrorResponse),
       catchError((error: HttpErrorResponse): Observable<never> => {
         this.errorService.createError(error, "recovery").then();
+        return EMPTY;
+      })
+    ));
+  }
+
+  public async confirmationsCodeEmail(request: CodeEmailRequest): Promise<ErrorResponse> {
+    return lastValueFrom(this.http.post(this.baseUrl + "user", request, {
+      params: {
+        operation: "confirmationsCodeEmail"
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
+    }).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): ErrorResponse => res as ErrorResponse),
+      catchError((error: HttpErrorResponse): Observable<never> => {
+        this.errorService.createError(error, "confirmationsCodeEmail").then();
+        return EMPTY;
+      })
+    ));
+  }
+
+  public async sendCodeEmail(request: CodeRequest): Promise<ErrorResponse> {
+    return lastValueFrom(this.http.post(this.baseUrl + "user", request, {
+      params: {
+        operation: "sendCodeEmail"
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
+    }).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): ErrorResponse => res as ErrorResponse),
+      catchError((error: HttpErrorResponse): Observable<never> => {
+        this.errorService.createError(error, "CodeEmail").then();
+        return EMPTY;
+      })
+    ));
+  }
+
+  public async sendNewPassword(request: NewPasswordRequest): Promise<ErrorResponse> {
+    return lastValueFrom(this.http.post(this.baseUrl + "user", request, {
+      params: {
+        operation: "sendNewPassword"
+      },
+      reportProgress: true,
+      withCredentials: true,
+      observe: "body",
+      mode: 'cors'
+    }).pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+      map((res: object): ErrorResponse => res as ErrorResponse),
+      catchError((error: HttpErrorResponse): Observable<never> => {
+        this.errorService.createError(error, "NewPassword").then();
         return EMPTY;
       })
     ));
