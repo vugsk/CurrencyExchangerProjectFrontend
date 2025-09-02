@@ -180,8 +180,6 @@ export class ForgotMyPassword implements OnInit, OnDestroy {
     }
   }
 
-
-  // TODO починить ошибку в 188 строке
   // TODO сделать проверку для пароля
   protected onSubmitCodePremiss() {
     switch (this.modalSite) {
@@ -205,11 +203,11 @@ export class ForgotMyPassword implements OnInit, OnDestroy {
       case "INPUT_NEW_PASSWORD":
         if (this.form_module.get("input_password")?.valid && this.form_module.get("input_confirmations_password")?.valid) {
           this.elementRef.nativeElement.querySelector("div#popupModal").style.display = "none";
-          const new_password: NewPasswordRequest = {
-            new_password: this.form_module.value.new_password,
+          const newPasswordRequest: NewPasswordRequest = {
+            new_password: this.form_module.get("input_password")?.value,
           };
-          console.log(new_password);
-          this.authService.sendNewPassword(new_password).then();
+          console.log(newPasswordRequest);
+          this.authService.sendNewPassword(newPasswordRequest).then();
         }
         break;
     }
@@ -217,5 +215,17 @@ export class ForgotMyPassword implements OnInit, OnDestroy {
 
   protected onClose(): void {
     this.elementRef.nativeElement.querySelector("div#popupModal").style.display = "none";
+  }
+
+  protected onShowPassword(id: string): void {
+    let type: Attr | null | undefined = this.elementRef.nativeElement.querySelector('div#' + id)?.parentElement
+      ?.getElementsByTagName("input")[0]
+      ?.getAttributeNode("type");
+    if (type?.value !== undefined && type !== null && type !== undefined) {
+      switch (type?.value) {
+        case "password": type.value = "text"; break;
+        case "text": type.value = "password"; break;
+      }
+    }
   }
 }

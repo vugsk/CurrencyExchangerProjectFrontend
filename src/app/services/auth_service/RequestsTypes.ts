@@ -59,7 +59,7 @@ export interface CodeEmailRequest {
 }
 
 export interface CodeRequest {
-  code: number;
+  code: string;
 }
 
 export interface NewPasswordRequest {
